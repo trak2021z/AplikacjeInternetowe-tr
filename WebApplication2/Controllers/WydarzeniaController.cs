@@ -19,6 +19,7 @@ namespace WebApplication2.Controllers
             _context = context;
         }
 
+        
         // GET: Wydarzenia
         public async Task<IActionResult> Index()
         {
