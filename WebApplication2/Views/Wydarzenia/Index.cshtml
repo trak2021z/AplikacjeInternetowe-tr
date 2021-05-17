@@ -20,9 +20,10 @@
     .cl-nameMonth {
         font-size: 26px;
     }
+
     .calendarHeader {
         display: grid;
-        background-color: #6b63d3;
+        background-color: #3626A7;
         grid-template-columns: 20% 60% 20%;
         text-align: center;
         color: white;
@@ -34,12 +35,14 @@
         transition: 0.7s;
         user-select: none;
     }
-    .cl-button-back-next:hover {
+
+        .cl-button-back-next:hover {
             opacity: 0.9;
             font-weight: 900;
             border-radius: 4%;
             box-shadow: 0 1px 4px 2px #666;
-    }
+        }
+
     .clDaysName {
         background-color: whitesmoke;
         border: 1px solid black;
@@ -52,9 +55,9 @@
 
     .clMain {
         background-color: #EDEDED;
-        color: black;      
+        color: black;
     }
-   
+
 
     #cl_row1 {
         display: grid;
@@ -66,26 +69,70 @@
     }
 
     .cl-day-one {
-        border: 1px solid black;
+        /*border: 1px solid black;*/
         border-radius: 5%;
         cursor: pointer;
         font-size: 18px;
         font-weight: 600;
-        margin: 1px;
+        margin: 1px auto;
+        width: 80%;
     }
-    .cl-day-one:hover {
-        opacity: 0.9;
-        border-radius: 2%;
-        box-shadow: 0 1px 4px 2px #666;       
+
+        .cl-day-one:hover {
+            opacity: 0.9;
+            border-radius: 12%;
+            margin: 1px auto;
+            width: 60%;
+            box-shadow: 0 1px 4px 2px #666;
+        }
+
+    .cl-event {
+        background-color: #6b63d3;
     }
-      
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .cl-day-one .tooltiptext {
+        visibility: hidden;
+        width: 320px;
+        background-color: #323232;
+        color: #fff;
+        line-height: 16px;
+        text-align: center;
+        border-radius: 6px;
+        padding: 2px;
+        position: absolute;
+        z-index: 1;
+    }
+
+    .cl-day-one:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .separatorWydarzen {
+        margin: 10px auto;
+        width: 80%;
+        border-bottom: 1px dotted white;
+    }
 
     .cl-day-one-SN {
-        color: red;
+        color: #FF331F;
+        font-weight: 600;
     }
 
-    
+    .cl-info {
+        border: 1px solid black;
+    }
 
+    /*xd*/
+
+
+
+
+    /*
     #areatip {
         display: none;
         background-color: #323232;
@@ -95,17 +142,17 @@
         padding: 4px;
         line-height: 16px;
         font-size: 18px;
-    }
+    }*/
 
-    .cl-day-one hr {
+    /*.cl-day-one hr {
         margin: 0 auto;
         margin-top: 5px;
         margin-bottom: 5px;
         text-align: center;
         width: 90%;
-    }
+    }*/
 
-    #areatip hr {
+    /* #areatip hr {
         margin: 0 auto;
         margin-top: 5px;
         margin-bottom: 5px;
@@ -154,17 +201,19 @@
 
     #cl-own-page-x {
         display: none;
-    }
+    }*/
 </style>
 
 <script>
-    window.onload = function () {       
+    window.onload = function () {
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
         generujDniMiesiaca(obecnaData);
-    };   
+        wydarzenia = pobierzWydarzenia();
+    };
     let obecnaData = new Date();
-    let obecnyMiesiac = obecnaData.getMonth() + 1;  
-   
+    let obecnyMiesiac = obecnaData.getMonth() + 1;
+    let wydarzenia = [];
+
     function zamienLiczbeNaMiesiac(numer) {
         let miesiace = ["styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec", "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień"];
         return miesiace[numer - 1];
@@ -175,19 +224,20 @@
             else ilosciDni = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
         return ilosciDni[numer - 1];
     }
-    function generujPierwszyDzienMiesiaca(date) {      
-        var startMonth = new Date(date.getFullYear(), date.getMonth(),1);       
+    function generujPierwszyDzienMiesiaca(date) {
+        var startMonth = new Date(date.getFullYear(), date.getMonth(),1);
         return startMonth.getDay();
     }
-    function iloscDniMiesiaca(date) {       
+    function iloscDniMiesiaca(date) {
         return new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
+    }
+    function pobierzWydarzenia() {
+        return json = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model, Newtonsoft.Json.Formatting.Indented));
     }
     function generujDniMiesiaca(date) {
         var ileDni = iloscDniMiesiaca(date);
         var pierwszyDzien = generujPierwszyDzienMiesiaca(date);
         var row = document.getElementById("cl_row1");
-        console.log(ileDni);
-        console.log(pierwszyDzien);
         row.textContent = '';
         if (pierwszyDzien == 0) pierwszyDzien = 7;
         let j = 1;
@@ -196,24 +246,62 @@
                 row.appendChild(document.createElement("div"));
             }
             else {
-                let div = document.createElement("div");
+                var div = document.createElement("div");
                 div.classList.add("cl-day-one");
-                div.innerText = j;
+                var dataDoSrapwdzenia = new Date(date.getFullYear(), date.getMonth(), j);
+                if (dataDoSrapwdzenia.getDay() == 0) div.classList.add("cl-day-one-SN");
+                wydarzenia = pobierzWydarzenia();
+                div.innerText += j;
+                var span = document.createElement("span");
+                wydarzenia.forEach(element => {
+                    var data = new Date(element.Data_wydarzenia);
+                    if (data.getFullYear() == dataDoSrapwdzenia.getFullYear() && data.getMonth() == dataDoSrapwdzenia.getMonth() && data.getDate() == dataDoSrapwdzenia.getDate()) {
+                        div.classList.add("cl-event");
+                        span.innerHTML += element.Nazwa + "<div class=\"separatorWydarzen\"></div>";
+                        span.classList.add("tooltiptext");
+                        div.onclick = function () {
+                            generujPoleEdycjeWydarzen(data);
+                        }
+                    }
+
+                });
+
+                div.appendChild(span);
                 row.appendChild(div);
                 j++;
             }
         }
     }
+    function generujPoleEdycjeWydarzen(date) {
+        var obszar = document.getElementById("info-wydarzenia");
+        var text = "<table class=\"table\"><thead><tr><th>Nazwa</th><th>Data wydarzenia</th><th>Opis</th><th></th></tr></thead><tbody>";
+        var wydarzenia = pobierzWydarzenia();
+        var wydarzeniaDzien = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == date.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == date.getMonth() && new Date(a.Data_wydarzenia).getDate() == date.getDate());
+        wydarzeniaDzien.forEach(element => {
+            var miesiac = zamienLiczbeNaMiesiac( new Date(element.Data_wydarzenia).getMonth()+1) ;
+            text += "<tr><td>" + element.Nazwa + "</td><td>" + new Date(element.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(element.Data_wydarzenia).getFullYear() + "</td><td>" + element.Opis + "</td>";
+            text += "<td><a asp-action=\"Edit\" asp-route-id=\"" + element.Id + "\">Edycja</a>|";
+            text += "<a asp-action=\"Details\" asp-route-id=\"" + element.Id + "\">Szczegóły/<a>|";
+            text += "<a asp-action=\"Delete\" asp-route-id=\"" + element.Id + "\">Usunięcie</a></td></tr>";
+
+
+        
+        });
+        text += "</tbody></table>";
+
+        console.log(text);
+        obszar.innerHTML = text;
+    }
     function poprzedniMiesiac() {
         obecnyMiesiac--;
-        obecnaData.setMonth(obecnyMiesiac - 1);   
+        obecnaData.setMonth(obecnyMiesiac - 1);
         if (obecnyMiesiac < 1) obecnyMiesiac = 12;
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
-
+        generujDniMiesiaca(obecnaData);
     }
     function nastepnyMiesiac() {
         obecnyMiesiac++;
-        obecnaData.setMonth(obecnyMiesiac - 1);    
+        obecnaData.setMonth(obecnyMiesiac - 1);
         if (obecnyMiesiac > 12) obecnyMiesiac = 1;
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
         generujDniMiesiaca(obecnaData);
@@ -221,10 +309,10 @@
 </script>
 <div id="myVar"></div>
 <div class="calendarArea">
-    <div class="calendarHeader">      
-       <div class="cl-button-back-next" onclick="poprzedniMiesiac()">	&lt;</div>
-       <div class="cl-nameMonth" id="nazwaMiesiaca"></div>
-       <div class="cl-button-back-next" onclick="nastepnyMiesiac()">&gt;</div>     
+    <div class="calendarHeader">
+        <div class="cl-button-back-next" onclick="poprzedniMiesiac()">	&lt;</div>
+        <div class="cl-nameMonth" id="nazwaMiesiaca"></div>
+        <div class="cl-button-back-next" onclick="nastepnyMiesiac()">&gt;</div>
     </div>
     <div class="clDaysName">
         <div>Pn</div>
@@ -235,9 +323,12 @@
         <div>So</div>
         <div style="color:red">N</div>
     </div>
-    <div class="clMain">      
-        <div id="cl_row1">               
-         </div>  
+    <div class="clMain">
+        <div id="cl_row1">
+        </div>
+    </div>
+    <div class="cl-info" id="info-wydarzenia">
+        xd
     </div>
     <div class="clFooter">
         <div class="clAreaEvent">
@@ -252,7 +343,7 @@
 
 </div>
 <div style="margin-bottom:20px"></div>
-@*<table class="table">
+<table class="table">
         <thead>
             <tr>
                 <th>
@@ -287,4 +378,4 @@
             </tr>
     }
         </tbody>
-    </table>*@
+    </table>
