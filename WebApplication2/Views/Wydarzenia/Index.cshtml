@@ -124,84 +124,72 @@
     }
 
     .cl-info {
-        border: 1px solid black;
+        /*border: 1px solid black;*/
+    }
+
+    .naglowek-info-wydarzenia {
+        display: grid;
+        text-align: center;
+        color: white;
+        background-color: #3626A7;
+        grid-template-columns: 30% 20% 20% 30%;
+        font-size: 20px;
+    }
+
+    .lista-info-wydarzenia {
+        display: grid;
+        text-align: center;
+        background-color: #EDEDED;
+        grid-template-columns: 30% 20% 20% 30%;
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        .lista-info-wydarzenia:hover {
+            box-shadow: 2px 1px 2px 1px gray;
+            transform: translate(2px,3px);
+            transition: 0.6s;
+        }
+
+    .akcje-kolumny {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        margin: 0 auto;
+        width: 60%;
     }
 
     /*xd*/
 
 
 
-
-    /*
-    #areatip {
-        display: none;
-        background-color: #323232;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 4px;
-        line-height: 16px;
-        font-size: 18px;
-    }*/
-
-    /*.cl-day-one hr {
-        margin: 0 auto;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        text-align: center;
-        width: 90%;
-    }*/
-
-    /* #areatip hr {
-        margin: 0 auto;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        text-align: center;
-        width: 90%;
-    }
-
-    .cl-to-day {
-        border: 2px solid red;
-        background-color: #FFA41B;
-    }
-
     .clFooter {
-        border: 1px solid black;
+        background-color: #3626A7;
+        color: white;
     }
 
     .clAreaEvent {
-        color: white;
-        background-color: #e83576;
+        text-align: center;
         padding-left: 10px;
-        font-weight: 900;
+        font-weight: 600;
         line-height: 16px;
         padding: 10px;
     }
 
     #cl-data-event {
-        color: white;
-        background-color: #e83576;
+        background-color: #EDEDED;
         padding-left: 10px;
         font-weight: 900;
         line-height: 16px;
         padding: 10px;
+        color: black;
     }
 
     .clDisplayNameEvent {
-        background-color: #EDEDED;
         padding: 0px;
+        background-color: #EDEDED;
+        color: black;
     }
-
-        .clDisplayNameEvent ul {
-            margin: 0px;
-            font-size: 16px;
-            font-weight: 600;
-            padding-left: 30px;
-        }
-
-    #cl-own-page-x {
-        display: none;
-    }*/
 </style>
 
 <script>
@@ -209,6 +197,7 @@
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
         generujDniMiesiaca(obecnaData);
         wydarzenia = pobierzWydarzenia();
+        generujNadchodząceWydarzenia();
     };
     let obecnaData = new Date();
     let obecnyMiesiac = obecnaData.getMonth() + 1;
@@ -274,23 +263,75 @@
     }
     function generujPoleEdycjeWydarzen(date) {
         var obszar = document.getElementById("info-wydarzenia");
-        var text = "<table class=\"table\"><thead><tr><th>Nazwa</th><th>Data wydarzenia</th><th>Opis</th><th></th></tr></thead><tbody>";
+        obszar.innerHTML = '';
+        var naglowek = document.createElement("div");
+        naglowek.classList.add("naglowek-info-wydarzenia");
+        var opisy = ["Nazwa", "Data wydarzenia", "Opis", "Akcje"];
+        opisy.forEach(element => {
+            var div = document.createElement("div");
+            div.innerText = element;
+            naglowek.appendChild(div);
+        });
+        obszar.appendChild(naglowek);
         var wydarzenia = pobierzWydarzenia();
         var wydarzeniaDzien = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == date.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == date.getMonth() && new Date(a.Data_wydarzenia).getDate() == date.getDate());
+
         wydarzeniaDzien.forEach(element => {
-            var miesiac = zamienLiczbeNaMiesiac( new Date(element.Data_wydarzenia).getMonth()+1) ;
-            text += "<tr><td>" + element.Nazwa + "</td><td>" + new Date(element.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(element.Data_wydarzenia).getFullYear() + "</td><td>" + element.Opis + "</td>";
-            text += "<td><a asp-action=\"Edit\" asp-route-id=\"" + element.Id + "\">Edycja</a>|";
-            text += "<a asp-action=\"Details\" asp-route-id=\"" + element.Id + "\">Szczegóły/<a>|";
-            text += "<a asp-action=\"Delete\" asp-route-id=\"" + element.Id + "\">Usunięcie</a></td></tr>";
-
-
-        
+            var lista = document.createElement("div");
+            lista.classList.add("lista-info-wydarzenia");
+            var div = document.createElement("div");
+            var nazwa = document.createElement("div");
+            nazwa.innerText = element.Nazwa;
+            var datawydarzenia = document.createElement("div");
+            var miesiac = zamienLiczbeNaMiesiac(new Date(element.Data_wydarzenia).getMonth() + 1);
+            datawydarzenia.innerText = new Date(element.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(element.Data_wydarzenia).getFullYear();
+            var opis = document.createElement("div");
+            opis.innerText = element.Opis;
+            var akcje = document.createElement("div");
+            akcje.classList.add("akcje-kolumny");
+            var edit = document.createElement("a");
+            edit.href = "/Wydarzenia/Edit/" + element.Id;
+            edit.innerText = "Edycja";
+            akcje.appendChild(edit);
+            var usun = document.createElement("a");
+            usun.href = "/Wydarzenia/Delete/" + element.Id;
+            usun.innerText = "Usuń";
+            akcje.appendChild(usun);
+            lista.appendChild(nazwa);
+            lista.appendChild(datawydarzenia);
+            lista.appendChild(opis);
+            lista.appendChild(akcje);
+            lista.onclick = function () {
+                window.location = "/Wydarzenia/Details/" + element.Id;
+            }
+            obszar.appendChild(lista);
         });
-        text += "</tbody></table>";
 
-        console.log(text);
-        obszar.innerHTML = text;
+    }
+    function generujNadchodząceWydarzenia() {
+        var date = new Date();
+        var wydarzenia = pobierzWydarzenia();
+        var nadchodzace = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == date.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == date.getMonth());
+
+        var wydarzenie = nadchodzace.find(a => new Date(a.Data_wydarzenia).getDate() >= date.getDate());
+        var nazwa = document.getElementById("cl-list-event");
+        nazwa.innerHTML = "";
+        var data = document.getElementById("cl-data-event");
+        data.innerHTML = "";
+   
+        if (wydarzenia != undefined) {
+            var div = document.createElement("div");
+            div.innerText = wydarzenie.Nazwa;
+            nazwa.appendChild(div);
+            var div = document.createElement("div");
+            div.innerText = "Data:"+wydarzenie.Data_wydarzenia;
+            nazwa.appendChild(div);          
+        }
+        else {
+            var div = document.createElement("div");
+            div.innerText = "brak wydarzeń w tym miesiącu";
+            nazwa.appendChild(div);
+        }
     }
     function poprzedniMiesiac() {
         obecnyMiesiac--;
@@ -298,6 +339,7 @@
         if (obecnyMiesiac < 1) obecnyMiesiac = 12;
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
         generujDniMiesiaca(obecnaData);
+        generujNadchodząceWydarzenia();
     }
     function nastepnyMiesiac() {
         obecnyMiesiac++;
@@ -305,6 +347,7 @@
         if (obecnyMiesiac > 12) obecnyMiesiac = 1;
         document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
         generujDniMiesiaca(obecnaData);
+        generujNadchodząceWydarzenia();
     }
 </script>
 <div id="myVar"></div>
@@ -328,22 +371,22 @@
         </div>
     </div>
     <div class="cl-info" id="info-wydarzenia">
-        xd
+
     </div>
     <div class="clFooter">
         <div class="clAreaEvent">
-            <div>Nadchodzące wydarzenia:</div>
+            <div>Nadchodzące wydarzenie:</div>
 
         </div>
         <div class="clDisplayNameEvent" id="cl-list-event">
-
+           
         </div>
-        <div id="cl-data-event">Data:</div>
+        <div id="cl-data-event"></div>
     </div>
 
 </div>
 <div style="margin-bottom:20px"></div>
-<table class="table">
+@*<table class="table">
         <thead>
             <tr>
                 <th>
@@ -378,4 +421,4 @@
             </tr>
     }
         </tbody>
-    </table>
+    </table>*@
