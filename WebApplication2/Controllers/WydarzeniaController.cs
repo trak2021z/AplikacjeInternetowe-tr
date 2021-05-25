@@ -19,7 +19,12 @@ namespace WebApplication2.Controllers
             _context = context;
         }
 
-        
+        // GET: Wydarzenie/KalendarzTygodniami
+        public async Task<IActionResult> KalendarzTygodniami()
+        {
+            return View(await _context.Wydarzenia.ToListAsync());
+        }
+
         // GET: Wydarzenia
         public async Task<IActionResult> Index()
         {
@@ -49,6 +54,7 @@ namespace WebApplication2.Controllers
         {
             return View();
         }
+       
 
         // POST: Wydarzenia/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
