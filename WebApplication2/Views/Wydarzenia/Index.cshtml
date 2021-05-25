@@ -177,19 +177,19 @@
     }
 
     #cl-data-event {
-        background-color: #EDEDED;
-        padding-left: 10px;
-        font-weight: 900;
-        line-height: 16px;
+        background-color: #EDEDED;  
         padding: 10px;
+        font-size: 18px;
         color: black;
     }
 
     .clDisplayNameEvent {
-        padding: 0px;
+        padding: 10px;
+        font-size:18px;
         background-color: #EDEDED;
         color: black;
     }
+ 
 </style>
 
 <script>
@@ -318,14 +318,14 @@
         nazwa.innerHTML = "";
         var data = document.getElementById("cl-data-event");
         data.innerHTML = "";
-   
+        var miesiac = zamienLiczbeNaMiesiac(new Date(wydarzenie.Data_wydarzenia).getMonth() + 1);
         if (wydarzenia != undefined) {
             var div = document.createElement("div");
-            div.innerText = wydarzenie.Nazwa;
+            div.innerText ="Nazwa: "+ wydarzenie.Nazwa;
             nazwa.appendChild(div);
             var div = document.createElement("div");
-            div.innerText = "Data:"+wydarzenie.Data_wydarzenia;
-            nazwa.appendChild(div);          
+            div.innerText = "Data: " + new Date(wydarzenie.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(wydarzenie.Data_wydarzenia).getFullYear();;
+            data.appendChild(div);          
         }
         else {
             var div = document.createElement("div");
@@ -385,7 +385,7 @@
     </div>
 
 </div>
-<div style="margin-bottom:20px"></div>
+
 @*<table class="table">
         <thead>
             <tr>

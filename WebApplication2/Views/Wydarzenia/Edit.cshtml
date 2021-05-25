@@ -1,10 +1,10 @@
 ﻿@model WebApplication2.Models.Wydarzenie
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edycja";
 }
 
-<h1>Edit</h1>
+<h1>Edycja</h1>
 
 <h4>Wydarzenie</h4>
 <hr />
@@ -29,14 +29,14 @@
                 <span asp-validation-for="Opis" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Zapisz" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Przejdź do kalendarza</a>
 </div>
 
 @section Scripts {
