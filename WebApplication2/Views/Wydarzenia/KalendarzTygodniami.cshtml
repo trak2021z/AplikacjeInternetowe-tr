@@ -3,5 +3,193 @@
 @{
     ViewData["Title"] = "Podgląd tygodniami";
 }
+<style>
+  
 
+    .cl-nameMonth {
+        font-size: 26px;
+    }
+
+    .calendarHeader {
+        display: grid;
+        background-color: #3626A7;
+        grid-template-columns: 20% 60% 20%;
+        text-align: center;
+        color: white;
+    }
+
+    .cl-button-back-next {
+        font-size: 26px;
+        cursor: pointer;
+        transition: 0.7s;
+        user-select: none;
+    }
+
+        .cl-button-back-next:hover {
+            opacity: 0.9;
+            font-weight: 900;
+            border-radius: 4%;
+            box-shadow: 0 1px 4px 2px #666;
+        }
+
+    .dayOfWeekName {
+        display: grid;
+        grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+        text-align: center;
+        border-left: 1px solid black;
+        border-right: 1px solid black;
+    }
+
+    .ramka {
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+    }
+
+    .nameDay {
+        font-weight: 900;
+        margin: 5px;
+        font-size: 18px;
+      
+    }
+    .nameDay2 {
+        font-weight: 500;
+        margin: 5px;
+        font-size: 18px;
+        background-color: #EDEDED;
+    }
+</style>
+<script>
+    window.onload = function () {
+        document.getElementById("nazwaMiesiaca").innerText = zamienLiczbeNaMiesiac(obecnaData.getMonth()) + " " + obecnaData.getFullYear();
+        generujDniTygodnia();   
+      
+    };
+
+    let skrotyDniTygodnia = ["NI", "PN", "WT", "ŚR", "CZ", "PI", "SO",];
+    let obecnaData = new Date();
+  
+
+    function pobierzWydarzenia() {
+        return json = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model, Newtonsoft.Json.Formatting.Indented));
+    }
+    function iloscDniMiesiaca(date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    }
+    function zamienLiczbeNaMiesiac(numer) {
+        let miesiace = ["styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec", "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień"];
+        return miesiace[numer];
+    }
+    function poprzedniMiesiac() {
+        obecnaData.setDate(obecnaData.getDate() - 1);
+        document.getElementById("nazwaMiesiaca").textContent = zamienLiczbeNaMiesiac(obecnaData.getMonth()) + " " + obecnaData.getFullYear();
+        generujDniTygodniaSkroty(obecnaData.getDay());
+        generujDniTygodnia();
+    }
+    function nastepnyMiesiac() {
+        obecnaData.setDate(obecnaData.getDate() + 1);
+        document.getElementById("nazwaMiesiaca").textContent = zamienLiczbeNaMiesiac(obecnaData.getMonth()) + " " + obecnaData.getFullYear();
+        generujDniTygodniaSkroty(obecnaData.getDay());
+        generujDniTygodnia();
+    }
+    function generujDniTygodniaSkroty(odDnia) {
+        var skroty = document.getElementById("skrotDnia").children;
+        let i = 0;
+        for (var j = odDnia; j < 7; j++) {            
+            skroty[i].textContent = skrotyDniTygodnia[j];
+            i++;
+        }
+        for (var j = 0; j < odDnia; j++) {
+            skroty[i].textContent = skrotyDniTygodnia[j];
+            i++;
+
+        }
+    }
+    function generujDniTygodnia() {
+        var dni = document.getElementById("dzienDnia").children;
+        for (var i = 0; i < 7; i++) {
+            var nowaData = new Date(obecnaData.getFullYear(), obecnaData.getMonth(), obecnaData.getDate() + i);
+            dni[i].textContent = nowaData.getDate();
+        }
+        var listy = document.getElementById("cl-event").children;
+        for (var i = 0; i < 7; i++) {
+            listy[i].innerText = "";
+        }
+     
+        for (var i = 0; i < 7; i++) {
+            var nowaData = new Date(obecnaData.getFullYear(), obecnaData.getMonth(), obecnaData.getDate() + i);
+            var wydarzenia = pobierzWydarzenia();         
+            var event = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == nowaData.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == nowaData.getMonth() && new Date(a.Data_wydarzenia).getDate() == nowaData.getDate());
+            console.log(event);
+            if (event.length != 0) {
+                event.forEach(element => {
+                    listy[i].innerHTML += element.Nazwa;
+                    listy[i].innerHTML += "<br>";
+                });
+                
+            }
+            else {
+                console.log("xd2");
+                listy[i].innerText = "Brak wydarzeń";
+            }
+        }
+    }
+
+
+
+</script>
 <h1>Podgląd kalendarza Tgodniami</h1>
+<p>
+    <a asp-action="Create">Dodaj nowe wydarzenie</a>
+</p>
+<div class="container">
+    <div class="main">
+        <div class="calendarHeader">
+            <div class="cl-button-back-next" onclick="poprzedniMiesiac()">	&lt;</div>
+            <div class="cl-nameMonth" id="nazwaMiesiaca">Maj 2021</div>
+            <div class="cl-button-back-next" onclick="nastepnyMiesiac()">&gt;</div>
+        </div>
+        <div class="dayOfWeekName" id="skrotDnia">
+            <div class="nameDay">PN</div>
+            <div class="nameDay">WT</div>
+            <div class="nameDay">ŚR</div>
+            <div class="nameDay">CZ</div>
+            <div class="nameDay">PI</div>
+            <div class="nameDay">SO</div>
+            <div class="nameDay">NI</div>
+        </div>
+        <div class="dayOfWeekName" id="dzienDnia">
+            <div class="nameDay">17</div>
+            <div class="nameDay">18</div>
+            <div class="nameDay">19</div>
+            <div class="nameDay">20</div>
+            <div class="nameDay">21</div>
+            <div class="nameDay">22</div>
+            <div class="nameDay">23</div>
+        </div>
+        <div class="dayOfWeekName ramka" id="cl-event">
+            <div class="nameDay2">
+               
+            </div>
+            <div class="nameDay2">
+             
+            </div>
+            <div class="nameDay2">
+               
+            </div>
+            <div class="nameDay2">
+               
+            </div>
+            <div class="nameDay2">
+              
+            </div>
+            <div class="nameDay2">
+             
+            </div>
+            <div class="nameDay2">
+               
+            </div>
+        </div>
+    </div>
+
+
+</div>
