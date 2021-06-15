@@ -1,0 +1,425 @@
+﻿@model IEnumerable<AplikacjaInternetowa3.Models.Wydarzenie>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Przeglądanie kalendarza</h1>
+
+<p>
+    <a asp-action="Create">Dodaj nowe wydarzenie</a>
+</p>
+<p>
+    <a asp-action="KalendarzTygodniami">tygodniami</a>
+</p>
+<style>
+    .cl-nameMonth {
+        font-size: 26px;
+    }
+
+    .calendarHeader {
+        display: grid;
+        background-color: #3626A7;
+        grid-template-columns: 20% 60% 20%;
+        text-align: center;
+        color: white;
+    }
+
+    .cl-button-back-next {
+        font-size: 26px;
+        cursor: pointer;
+        transition: 0.7s;
+        user-select: none;
+    }
+
+        .cl-button-back-next:hover {
+            opacity: 0.9;
+            font-weight: 900;
+            border-radius: 4%;
+            box-shadow: 0 1px 4px 2px #666;
+        }
+
+    .clDaysName {
+        background-color: whitesmoke;
+        border: 1px solid black;
+        display: grid;
+        grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+        text-align: center;
+        color: black;
+        font-weight: 900;
+    }
+
+    .clMain {
+        background-color: #EDEDED;
+        color: black;
+    }
+
+
+    #cl_row1 {
+        display: grid;
+        grid-template-columns: 14.28% 14.28% 14.28% 14.28% 14.28% 14.28% 14.28%;
+        text-align: center;
+        font-size: 16px;
+        padding: 2px;
+        user-select: none;
+    }
+
+    .cl-day-one {
+        /*border: 1px solid black;*/
+        border-radius: 5%;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 1px auto;
+        width: 80%;
+    }
+
+        .cl-day-one:hover {
+            opacity: 0.9;
+            border-radius: 12%;
+            margin: 1px auto;
+            width: 60%;
+            box-shadow: 0 1px 4px 2px #666;
+        }
+
+    .cl-event {
+        background-color: #6b63d3;
+    }
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .cl-day-one .tooltiptext {
+        visibility: hidden;
+        width: 320px;
+        background-color: #323232;
+        color: #fff;
+        line-height: 16px;
+        text-align: center;
+        border-radius: 6px;
+        padding: 2px;
+        position: absolute;
+        z-index: 1;
+    }
+
+    .cl-day-one:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    .separatorWydarzen {
+        margin: 10px auto;
+        width: 80%;
+        border-bottom: 1px dotted white;
+    }
+
+    .cl-day-one-SN {
+        color: #FF331F;
+        font-weight: 600;
+    }
+
+    .cl-info {
+        /*border: 1px solid black;*/
+    }
+
+    .naglowek-info-wydarzenia {
+        display: grid;
+        text-align: center;
+        color: white;
+        background-color: #3626A7;
+        grid-template-columns: 30% 20% 20% 30%;
+        font-size: 20px;
+    }
+
+    .lista-info-wydarzenia {
+        display: grid;
+        text-align: center;
+        background-color: #EDEDED;
+        grid-template-columns: 30% 20% 20% 30%;
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        .lista-info-wydarzenia:hover {
+            box-shadow: 2px 1px 2px 1px gray;
+            transform: translate(2px,3px);
+            transition: 0.6s;
+        }
+
+    .akcje-kolumny {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        margin: 0 auto;
+        width: 60%;
+    }
+
+    /*xd*/
+
+
+
+    .clFooter {
+        background-color: #3626A7;
+        color: white;
+    }
+
+    .clAreaEvent {
+        text-align: center;
+        padding-left: 10px;
+        font-weight: 600;
+        line-height: 16px;
+        padding: 10px;
+    }
+
+    #cl-data-event {
+        background-color: #EDEDED;
+        padding: 10px;
+        font-size: 18px;
+        color: black;
+    }
+
+    .clDisplayNameEvent {
+        padding: 10px;
+        font-size: 18px;
+        background-color: #EDEDED;
+        color: black;
+    }
+</style>
+
+<script>
+    window.onload = function () {
+        document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
+        generujDniMiesiaca(obecnaData);
+        wydarzenia = pobierzWydarzenia();
+        generujNadchodząceWydarzenia();
+    };
+    let obecnaData = new Date();
+    let obecnyMiesiac = obecnaData.getMonth() + 1;
+    let wydarzenia = [];
+
+    function zamienLiczbeNaMiesiac(numer) {
+        let miesiace = ["styczeń", "luty", "marzec", "kwiecień", "maj", "czerwiec", "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień"];
+        return miesiace[numer - 1];
+    }
+    function zamienMiesiacNaIloscDni(numer,przestepny) {
+        var ilosciDni=[];
+        if (przestepny) ilosciDni = [ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+            else ilosciDni = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+        return ilosciDni[numer - 1];
+    }
+    function generujPierwszyDzienMiesiaca(date) {
+        var startMonth = new Date(date.getFullYear(), date.getMonth(),1);
+        return startMonth.getDay();
+    }
+    function iloscDniMiesiaca(date) {
+        return new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
+    }
+    function pobierzWydarzenia() {
+        var data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model, Newtonsoft.Json.Formatting.Indented));
+        return data;
+    }
+    function generujDniMiesiaca(date) {
+        var ileDni = iloscDniMiesiaca(date);
+        var pierwszyDzien = generujPierwszyDzienMiesiaca(date);
+        var row = document.getElementById("cl_row1");
+        row.textContent = '';
+        if (pierwszyDzien == 0) pierwszyDzien = 7;
+        let j = 1;
+        for (var i = 0; i < ileDni + pierwszyDzien-1; i++) {
+            if (i < pierwszyDzien-1) {
+                row.appendChild(document.createElement("div"));
+            }
+            else {
+                var div = document.createElement("div");
+                div.classList.add("cl-day-one");
+                var dataDoSrapwdzenia = new Date(date.getFullYear(), date.getMonth(), j);
+                if (dataDoSrapwdzenia.getDay() == 0) div.classList.add("cl-day-one-SN");
+                wydarzenia = pobierzWydarzenia();
+                div.innerText += j;
+                var span = document.createElement("span");
+                wydarzenia.forEach(element => {
+                    var data = new Date(element.Data_wydarzenia);
+                    if (data.getFullYear() == dataDoSrapwdzenia.getFullYear() && data.getMonth() == dataDoSrapwdzenia.getMonth() && data.getDate() == dataDoSrapwdzenia.getDate()) {
+                        div.classList.add("cl-event");
+                        span.innerHTML += element.Nazwa + "<div class=\"separatorWydarzen\"></div>";
+                        span.classList.add("tooltiptext");
+                        div.onclick = function () {
+                            generujPoleEdycjeWydarzen(data);
+                        }
+                    }
+
+                });
+
+                div.appendChild(span);
+                row.appendChild(div);
+                j++;
+            }
+        }
+    }
+    function generujPoleEdycjeWydarzen(date) {
+        var obszar = document.getElementById("info-wydarzenia");
+        obszar.innerHTML = '';
+        var naglowek = document.createElement("div");
+        naglowek.classList.add("naglowek-info-wydarzenia");
+        var opisy = ["Nazwa", "Data wydarzenia", "Opis", "Akcje"];
+        opisy.forEach(element => {
+            var div = document.createElement("div");
+            div.innerText = element;
+            naglowek.appendChild(div);
+        });
+        obszar.appendChild(naglowek);
+        var wydarzenia = pobierzWydarzenia();
+        var wydarzeniaDzien = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == date.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == date.getMonth() && new Date(a.Data_wydarzenia).getDate() == date.getDate());
+
+        wydarzeniaDzien.forEach(element => {
+            var lista = document.createElement("div");
+            lista.classList.add("lista-info-wydarzenia");
+            var div = document.createElement("div");
+            var nazwa = document.createElement("div");
+            nazwa.innerText = element.Nazwa;
+            var datawydarzenia = document.createElement("div");
+            var miesiac = zamienLiczbeNaMiesiac(new Date(element.Data_wydarzenia).getMonth() + 1);
+            datawydarzenia.innerText = new Date(element.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(element.Data_wydarzenia).getFullYear();
+            var opis = document.createElement("div");
+            opis.innerText = element.Opis;
+            var akcje = document.createElement("div");
+            akcje.classList.add("akcje-kolumny");
+            var edit = document.createElement("a");
+            edit.href = "/Wydarzenia/Edit/" + element.Id;
+            edit.innerText = "Edycja";
+            akcje.appendChild(edit);
+            var usun = document.createElement("a");
+            usun.href = "/Wydarzenia/Delete/" + element.Id;
+            usun.innerText = "Usuń";
+            akcje.appendChild(usun);
+            lista.appendChild(nazwa);
+            lista.appendChild(datawydarzenia);
+            lista.appendChild(opis);
+            lista.appendChild(akcje);
+            lista.onclick = function () {
+                window.location = "/Wydarzenia/Details/" + element.Id;
+            }
+            obszar.appendChild(lista);
+        });
+
+    }
+    function generujNadchodząceWydarzenia() {
+        var date = new Date();
+        var wydarzenia = pobierzWydarzenia();
+        var nadchodzace = wydarzenia.filter(a => new Date(a.Data_wydarzenia).getFullYear() == date.getFullYear() && new Date(a.Data_wydarzenia).getMonth() == date.getMonth());
+
+        var wydarzenie = nadchodzace.find(a => new Date(a.Data_wydarzenia).getDate() >= date.getDate());
+        var nazwa = document.getElementById("cl-list-event");
+        nazwa.innerHTML = "";
+        var data = document.getElementById("cl-data-event");
+        data.innerHTML = "";
+        var miesiac = zamienLiczbeNaMiesiac(new Date(wydarzenie.Data_wydarzenia).getMonth() + 1);
+        if (wydarzenia != undefined) {
+            var div = document.createElement("div");
+            div.innerText ="Nazwa: "+ wydarzenie.Nazwa;
+            nazwa.appendChild(div);
+            var div = document.createElement("div");
+            div.innerText = "Data: " + new Date(wydarzenie.Data_wydarzenia).getDate() + "-" + miesiac + "-" + new Date(wydarzenie.Data_wydarzenia).getFullYear();;
+            data.appendChild(div);
+        }
+        else {
+            var div = document.createElement("div");
+            div.innerText = "brak wydarzeń w tym miesiącu";
+            nazwa.appendChild(div);
+        }
+    }
+    function poprzedniMiesiac() {
+        obecnyMiesiac--;
+        obecnaData.setMonth(obecnyMiesiac - 1);
+        if (obecnyMiesiac < 1) obecnyMiesiac = 12;
+        document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
+        generujDniMiesiaca(obecnaData);
+        generujNadchodząceWydarzenia();
+    }
+    function nastepnyMiesiac() {
+        obecnyMiesiac++;
+        obecnaData.setMonth(obecnyMiesiac - 1);
+        if (obecnyMiesiac > 12) obecnyMiesiac = 1;
+        document.getElementById("nazwaMiesiaca").innerHTML = zamienLiczbeNaMiesiac(obecnyMiesiac) + " " + obecnaData.getFullYear();
+        generujDniMiesiaca(obecnaData);
+        generujNadchodząceWydarzenia();
+    }
+</script>
+<div id="myVar"></div>
+<div class="calendarArea">
+    <div class="calendarHeader">
+        <div class="cl-button-back-next" onclick="poprzedniMiesiac()">	&lt;</div>
+        <div class="cl-nameMonth" id="nazwaMiesiaca"></div>
+        <div class="cl-button-back-next" onclick="nastepnyMiesiac()">&gt;</div>
+    </div>
+    <div class="clDaysName">
+        <div>Pn</div>
+        <div>Wt</div>
+        <div>Śr</div>
+        <div>Cz</div>
+        <div>Pt</div>
+        <div>So</div>
+        <div style="color:red">N</div>
+    </div>
+    <div class="clMain">
+        <div id="cl_row1">
+        </div>
+    </div>
+    <div class="cl-info" id="info-wydarzenia">
+
+    </div>
+    <div class="clFooter">
+        <div class="clAreaEvent">
+            <div>Nadchodzące wydarzenie:</div>
+
+        </div>
+        <div class="clDisplayNameEvent" id="cl-list-event">
+
+        </div>
+        <div id="cl-data-event"></div>
+    </div>
+
+</div>
+@*<table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Nazwa)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Data_wydarzenia)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Opis)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Kategoria)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nazwa)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Data_wydarzenia)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Opis)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Kategoria.Nazwa)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edycja</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Szczegóły</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>*@
